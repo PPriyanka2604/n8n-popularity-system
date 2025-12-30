@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>n8n Workflow Popularity Dashboard</title>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+:root {
+  --bg: #f4f6fb;
+  --card: #ffffff;
+  --primary: #4f46e5;
+  --secondary: #ef4444;
+  --accent: #22c55e;
+  --text: #111827;
+  --muted: #6b7280;
+}
+
+body {
+  margin: 0;
+  padding: 24px;
+  font-family: "Inter", "Segoe UI", sans-serif;
+  background: var(--bg);
+  color: var(--text);
+}
+
+h1 {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.filters {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  margin-bottom: 24px;
+}
+
+select {
+  padding: 8px 14px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  font-size: 14px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+.card {
+  background: var(--card);
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.05);
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--card);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+th {
+  background: #111827;
+  color: white;
+  padding: 14px;
+  text-align: left;
+}
+
+td {
+  padding: 14px;
+  border-bottom: 1px solid #eee;
+  vertical-align: top;
+}
+
+tr:hover {
+  background: #f9fafb;
+}
+
+.rank {
+  font-weight: bold;
+  color: var(--primary);
+}
+
+.platform {
+  font-weight: 600;
+}
+
+pre {
+  margin: 0;
+  font-size: 12px;
+  background: #f3f4f6;
+  padding: 8px;
+  border-radius: 6px;
+}
+</style>
+</head>
+
+<body>
+
+<h1>🚀 n8n Workflow Popularity Analytics</h1>
+
+<div class="filters">
+  <select id="platformFilter" onchange="renderAll()">
+    <option value="All">All Platforms</option>
+  </select>
+  <select id="countryFilter" onchange="renderAll()">
+    <option value="All">All Countries</option>
+  </select>
+</div>
+
+<div class="grid">
+  <div class="card">
+    <canvas id="viewsLikesChart"></canvas>
+  </div>
+  <div class="card">
+    <canvas id="platformChart"></canvas>
+  </div>
+</div>
+
+<table>
+<thead>
+<tr>
+  <th>#</th>
+  <th>Workflow</th>
+  <th>Platform</th>
+  <th>Country</th>
+  <th>Popularity Metrics</th>
+</tr>
+</thead>
+<tbody id="tableBody"></tbody>
+</table>
+
+<script>
+let workflows = [];
+let viewsLikesChart, platformChart;
+
+fetch("/workflows")
+  .then(r => r.json())
+  .then(data => {
+    workflows = data;
+    populateFilters();
+    renderAll();
+  });
+
+function populateFilters() {
+  const platforms = new Set();
+  const countries = new Set();
+
+  workflows.forEach(w => {
+    platforms.add(w.platform);
+    countries.add(w.country);
+  });
+
+  platforms.forEach(p =>
+    platformFilter.innerHTML += `<option value="${p}">${p}</option>`
+  );
+
+  countries.forEach(c =>
+    countryFilter.innerHTML += `<option value="${c}">${c}</option>`
+  );
+}
+
+function getFiltered() {
+  const p = platformFilter.value;
+  const c = countryFilter.value;
+
+  return workflows.filter(w =>
+    (p === "All" || w.platform === p) &&
+    (c === "All" || w.country === c)
+  );
+}
+
+function renderAll() {
+  const data = getFiltered();
+  renderTable(data);
+  renderCharts(data);
+}
+
+function renderTable(data) {
+  const tbody = document.getElementById("tableBody");
+  tbody.innerHTML = "";
+
+  data
+    .sort((a,b) =>
+      (b.popularity_metrics.views || 0) -
+      (a.popularity_metrics.views || 0)
+    )
+    .forEach((w, i) => {
+      tbody.innerHTML += `
+        <tr>
+          <td class="rank">${i + 1}</td>
+          <td>${w.workflow}</td>
+          <td class="platform">${w.platform}</td>
+          <td>${w.country}</td>
+          <td><pre>${JSON.stringify(w.popularity_metrics, null, 2)}</pre></td>
+        </tr>
+      `;
+    });
+}
+
+function renderCharts(data) {
+  const yt = data.filter(d => d.platform === "YouTube").slice(0, 8);
+
+  const labels = yt.map(d => d.workflow.slice(0, 25) + "…");
+  const views = yt.map(d => d.popularity_metrics.views || 0);
+  const likes = yt.map(d => d.popularity_metrics.likes || 0);
+
+  if (viewsLikesChart) viewsLikesChart.destroy();
+
+  viewsLikesChart = new Chart(
+    document.getElementById("viewsLikesChart"),
+    {
+      type: "bar",
+      data: {
+        labels,
+        datasets: [
+          {
+            label: "Views",
+            data: views,
+            backgroundColor: "#60a5fa"
+          },
+          {
+            label: "Likes",
+            data: likes,
+            backgroundColor: "#f87171"
+          }
+        ]
+      },
+      options: {
+        scales: {
+          y: {
+            type: "logarithmic",
+            ticks: {
+              callback: v => v.toLocaleString()
+            }
+          }
+        },
+        plugins: {
+          title: {
+            display: true,
+            text: "YouTube Views vs Likes (Log Scale)"
+          },
+          tooltip: {
+            callbacks: {
+              label: ctx =>
+                `${ctx.dataset.label}: ${ctx.parsed.y.toLocaleString()}`
+            }
+          }
+        }
+      }
+    }
+  );
+
+  const platformCount = {};
+  data.forEach(d =>
+    platformCount[d.platform] =
+      (platformCount[d.platform] || 0) + 1
+  );
+
+  if (platformChart) platformChart.destroy();
+
+  platformChart = new Chart(
+    document.getElementById("platformChart"),
+    {
+      type: "doughnut",
+      data: {
+        labels: Object.keys(platformCount),
+        datasets: [{
+          data: Object.values(platformCount),
+          backgroundColor: ["#ef4444", "#6366f1", "#22c55e"]
+        }]
+      },
+      options: {
+        plugins: {
+          title: {
+            display: true,
+            text: "Workflow Distribution by Platform"
+          }
+        }
+      }
+    }
+  );
+}
+</script>
+
+</body>
+</html>
