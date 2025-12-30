@@ -35,7 +35,6 @@ Design a system that can scale to 20,000+ workflows
 
 Provide a visual dashboard for easy exploration
 
-🧠 System Architecture
 External Data Sources
  ├─ YouTube Data API
  ├─ n8n Community Forum (Discourse)
