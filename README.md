@@ -1,52 +1,67 @@
 🚀 n8n Workflow Popularity System
 
-A production-ready analytics system that identifies the most popular n8n workflows across multiple platforms using real engagement and trend data.
-The system is API-first, cron-ready, and includes a visual dashboard for insights.
+A production-ready analytics platform that identifies and ranks the most popular n8n workflows across multiple public platforms using real popularity evidence.
 
-📌 Problem Statement
+The system aggregates engagement data from YouTube, n8n Community Forum, and Google Search Trends, exposes it through a REST API, and visualizes insights using a web dashboard with charts.
 
-n8n users rely on community content (videos, forum posts, search trends) to discover useful workflows.
-However, there is no unified system that measures workflow popularity across platforms using trustworthy evidence.
+📌 Motivation
 
-This project solves that by aggregating popularity signals from:
+The n8n ecosystem has thousands of workflows shared across videos, forum discussions, and blogs.
+However, users currently lack a single, reliable source to answer:
 
-YouTube
+Which workflows are most popular?
 
-n8n Community Forum
+Which automations are trending right now?
 
-Google Search Trends
+What workflows are popular in different countries?
 
-🎯 Objectives
+Which platform contributes the strongest engagement?
 
-Identify popular n8n workflows across platforms
+This project solves that problem by collecting, validating, and aggregating popularity signals from multiple trusted sources.
 
-Use clear, numeric evidence (views, likes, replies, trends)
+🎯 Project Objectives
 
-Segment data by platform and country
+Collect workflow popularity data from multiple platforms
 
-Expose results via a REST API
+Use numeric, verifiable evidence instead of assumptions
 
-Enable automated, scheduled updates
+Segment popularity by platform and country
 
-Ensure the system is scalable to 20,000+ workflows
+Expose data through a clean REST API
+
+Enable automated daily/weekly updates
+
+Design a system that can scale to 20,000+ workflows
+
+Provide a visual dashboard for easy exploration
 
 🧠 System Architecture
-YouTube API        Forum API        Google Trends
-     │                 │                  │
-     ├──── Fetchers ───┼──── Fetchers ────┤
-     │                 │                  │
-                 Data Aggregation
-                         │
-                    data.json
-                         │
-                 FastAPI REST API
-                         │
-                  Web Dashboard
+External Data Sources
+ ├─ YouTube Data API
+ ├─ n8n Community Forum (Discourse)
+ └─ Google Trends
+        │
+        ▼
+Platform-Specific Fetchers
+        │
+        ▼
+Data Aggregation & Normalization
+        │
+        ▼
+data.json (Unified Dataset)
+        │
+        ▼
+FastAPI REST API
+        │
+        ├─ JSON Consumers
+        └─ Web Dashboard (Charts & Tables)
 
 📊 Data Sources & Popularity Signals
 🔹 YouTube (YouTube Data API v3)
 
-Popularity evidence:
+Used to capture content popularity and engagement.
+
+Metrics collected:
 
 View count
 
@@ -60,23 +75,31 @@ like_to_view_ratio
 
 comment_to_view_ratio
 
-Country segmentation: US, IN
+Country segmentation:
+
+United States (US)
+
+India (IN)
 
 🔹 n8n Community Forum (Discourse)
 
-Popularity evidence:
+Used to measure community adoption and discussion depth.
+
+Metrics collected:
 
 Number of replies
 
 Number of likes
 
-Thread view count
+Number of views
 
-Unique community engagement
+Indicates real usage and problem-solving activity
 
-🔹 Google Search (Google Trends)
+🔹 Google Search Trends (pytrends)
 
-Popularity evidence:
+Used to measure user intent and demand.
+
+Metrics collected:
 
 Relative search interest score
 
@@ -84,17 +107,19 @@ Keyword-based discovery
 
 Trend strength over time
 
-📦 Dataset
+📦 Dataset Overview
 
 Total workflows: 50+ (real, verifiable)
 
 Platforms: YouTube, Forum, Google
 
-Countries: United States (US), India (IN), Global
+Countries: US, IN, Global
 
 Storage: data.json
 
-Example Entry
+Update frequency: Automated (cron-ready)
+
+Example Dataset Entry
 {
   "workflow": "Google Sheets → Slack Automation",
   "platform": "YouTube",
@@ -112,41 +137,59 @@ Example Entry
 Endpoint
 GET /workflows
 
-Response
+Description
 
-JSON array of workflow popularity data
+Returns a JSON array of workflows segmented by:
 
-Platform and country segmented
+Platform
 
-Ready for external consumption
+Country
 
-🖥️ Web Dashboard (Bonus)
+Popularity metrics
 
-Interactive charts (Views vs Likes)
+API Characteristics
 
-Platform distribution visualization
+Stateless
+
+Production-ready
+
+JSON-only (easy integration with other systems)
+
+🖥️ Web Dashboard (Bonus Feature)
+
+The project includes a lightweight web UI built on top of the API.
+
+Features
+
+Interactive table of workflows
 
 Filters by platform and country
 
-Built using Chart.js
+Bar chart: YouTube Views vs Likes
+
+Pie/Doughnut chart: Platform distribution
+
+Real-time data loaded from the API
 
 Access:
 
 http://127.0.0.1:8000/ui
 
-🔁 Automation (Cron-Ready)
+🔁 Automation & Scheduling
 Update Script
 python update_data.py
 
-What It Does
+What the Script Does
 
-Fetches latest data from all platforms
+Fetches fresh data from all platforms
 
-Recalculates engagement metrics
+Recalculates engagement ratios
 
-Updates dataset automatically
+Updates the dataset (data.json)
 
-Logs execution timestamps
+Logs execution timestamps (automation.log)
+
+Handles API timeouts gracefully
 
 Scheduling Examples
 
@@ -161,35 +204,69 @@ Trigger: Daily / Weekly
 
 Action: python update_data.py
 
+✅ No manual intervention required.
+
 ⚙️ Installation & Running Locally
+Prerequisites
+
+Python 3.10+
+
+Git
+
+Setup
 pip install -r requirements.txt
 uvicorn main:app --reload
 
-
-Open:
+Access
 
 API → http://127.0.0.1:8000/workflows
 
 Dashboard → http://127.0.0.1:8000/ui
 
-📈 Scalability Note (IMPORTANT)
+📈 Scalability & Design Considerations
 
-While the current dataset contains 50+ verified workflows, the system is designed to scale to 20,000+ workflows using keyword expansion, pagination, batching, and scheduled execution, while respecting API rate limits.
+While the sample dataset contains 50+ verified workflows, the system is intentionally designed to scale to 20,000+ workflows using:
 
-✅ Production Readiness
+Keyword expansion
 
-✔ Modular, clean codebase
-✔ API-first architecture
+Pagination
+
+Batched API requests
+
+Scheduled execution
+
+API quotas and rate limits are respected during data collection.
+
+✅ Production Readiness Checklist
+
+✔ Modular code structure
+✔ Clean JSON schema
+✔ REST API usable on Day 1
 ✔ Automated data pipeline
-✔ Structured JSON output
-✔ Country & platform segmentation
-✔ Ready for deployment
+✔ Logging & fault tolerance
+✔ GitHub-ready documentation
+✔ Extensible design
+
+🔮 Future Enhancements
+
+Composite popularity score
+
+Trend growth analysis
+
+User-defined filters
+
+Export to CSV
+
+Cloud deployment
+
+Authentication & pagination
 
 🏁 Conclusion
 
-This project delivers a reliable, automated, and scalable system to identify popular n8n workflows using real engagement data.
-It can be deployed immediately and extended to handle large-scale datasets.
+This project demonstrates how data engineering, APIs, automation, and visualization can be combined to build a real-world analytics system.
+It is suitable for production deployment, academic evaluation, and interview discussion.
 
 👤 Author
 
 Priyanka
+GitHub: https://github.com/PPriyanka2604
