@@ -1,10 +1,10 @@
-🚀 n8n Workflow Popularity System
+## 🚀 n8n Workflow Popularity System
 
 A production-ready analytics platform that identifies and ranks the most popular n8n workflows across multiple public platforms using real popularity evidence.
 
 The system aggregates engagement data from YouTube, n8n Community Forum, and Google Search Trends, exposes it through a REST API, and visualizes insights using a web dashboard with charts.
 
-📌 Motivation
+## 📌 Motivation
 
 The n8n ecosystem has thousands of workflows shared across videos, forum discussions, and blogs.
 However, users currently lack a single, reliable source to answer:
@@ -19,7 +19,7 @@ Which platform contributes the strongest engagement?
 
 This project solves that problem by collecting, validating, and aggregating popularity signals from multiple trusted sources.
 
-🎯 Project Objectives
+## 🎯 Project Objectives
 
 Collect workflow popularity data from multiple platforms
 
@@ -35,6 +35,7 @@ Design a system that can scale to 20,000+ workflows
 
 Provide a visual dashboard for easy exploration
 
+```
 External Data Sources
  ├─ YouTube Data API
  ├─ n8n Community Forum (Discourse)
@@ -54,12 +55,12 @@ FastAPI REST API
         │
         ├─ JSON Consumers
         └─ Web Dashboard (Charts & Tables)
-
-📊 Data Sources & Popularity Signals
+```
+## 📊 Data Sources & Popularity Signals
 🔹 YouTube (YouTube Data API v3)
 
 Used to capture content popularity and engagement.
-
+```
 Metrics collected:
 
 View count
@@ -79,11 +80,11 @@ Country segmentation:
 United States (US)
 
 India (IN)
-
+```
 🔹 n8n Community Forum (Discourse)
 
 Used to measure community adoption and discussion depth.
-
+```
 Metrics collected:
 
 Number of replies
@@ -93,11 +94,12 @@ Number of likes
 Number of views
 
 Indicates real usage and problem-solving activity
+```
 
 🔹 Google Search Trends (pytrends)
 
 Used to measure user intent and demand.
-
+```
 Metrics collected:
 
 Relative search interest score
@@ -105,8 +107,8 @@ Relative search interest score
 Keyword-based discovery
 
 Trend strength over time
-
-📦 Dataset Overview
+```
+## 📦 Dataset Overview
 
 Total workflows: 50+ (real, verifiable)
 
@@ -117,7 +119,7 @@ Countries: US, IN, Global
 Storage: data.json
 
 Update frequency: Automated (cron-ready)
-
+```
 Example Dataset Entry
 {
   "workflow": "Google Sheets → Slack Automation",
@@ -131,7 +133,7 @@ Example Dataset Entry
   },
   "country": "US"
 }
-
+```
 🔗 REST API
 Endpoint
 GET /workflows
@@ -154,7 +156,7 @@ Production-ready
 
 JSON-only (easy integration with other systems)
 
-🖥️ Web Dashboard (Bonus Feature)
+## 🖥️ Web Dashboard (Bonus Feature)
 
 The project includes a lightweight web UI built on top of the API.
 
@@ -167,17 +169,18 @@ Filters by platform and country
 Bar chart: YouTube Views vs Likes
 
 Pie/Doughnut chart: Platform distribution
-
+```
 Real-time data loaded from the API
 
 Access:
 
 http://127.0.0.1:8000/ui
-
-🔁 Automation & Scheduling
+```
+## 🔁 Automation & Scheduling
+```
 Update Script
 python update_data.py
-
+```
 What the Script Does
 
 Fetches fresh data from all platforms
@@ -206,6 +209,7 @@ Action: python update_data.py
 ✅ No manual intervention required.
 
 ⚙️ Installation & Running Locally
+```
 Prerequisites
 
 Python 3.10+
@@ -221,8 +225,8 @@ Access
 API → http://127.0.0.1:8000/workflows
 
 Dashboard → http://127.0.0.1:8000/ui
-
-📈 Scalability & Design Considerations
+```
+## 📈 Scalability & Design Considerations
 
 While the sample dataset contains 50+ verified workflows, the system is intentionally designed to scale to 20,000+ workflows using:
 
@@ -236,7 +240,7 @@ Scheduled execution
 
 API quotas and rate limits are respected during data collection.
 
-✅ Production Readiness Checklist
+## ✅ Production Readiness Checklist
 
 ✔ Modular code structure
 ✔ Clean JSON schema
@@ -246,7 +250,7 @@ API quotas and rate limits are respected during data collection.
 ✔ GitHub-ready documentation
 ✔ Extensible design
 
-🔮 Future Enhancements
+##🔮 Future Enhancements
 
 Composite popularity score
 
@@ -260,7 +264,7 @@ Cloud deployment
 
 Authentication & pagination
 
-🏁 Conclusion
+## 🏁 Conclusion
 
 This project demonstrates how data engineering, APIs, automation, and visualization can be combined to build a real-world analytics system.
 It is suitable for production deployment, academic evaluation, and interview discussion.
